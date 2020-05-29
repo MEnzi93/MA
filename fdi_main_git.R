@@ -82,7 +82,7 @@ spdf <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_l
 #spdf<-shp
 #remove(shp)
 
-oversea<-read_xlsx("C:/WU/Master/AAMasterarbeit/mögliche Themen/Eu_structural_investment/less_developed.xlsx",4)
+oversea<-read_xlsx("less_developed.xlsx",4)
 bad<-c("AL", "BA", "MK", "RS", "TR")#because of bad data quality in fdi Data
 
 spdf <- spdf[!substr(spdf$id,1,4) %in% oversea$NUTS, ]
@@ -96,11 +96,11 @@ end<-2015
 #fdi
 
 csvs <- c(
-  "./Data/main-data/ind_400_b09-vfdi_data.csv",
-  "./Data/main-data/ind_401_a10-vfdi_data.csv",
-  "./Data/main-data/ind_403_man-vfdi_data.csv",
-  "./Data/main-data/ind_404_ser-vfdi_data.csv",
-  "./Data/main-data/ind_405_oth-vfdi_data.csv"
+  "ind_400_b09-vfdi_data.csv",
+  "ind_401_a10-vfdi_data.csv",
+  "ind_403_man-vfdi_data.csv",
+  "ind_404_ser-vfdi_data.csv",
+  "ind_405_oth-vfdi_data.csv"
   )
 name<-c("2009","2015","man","ser","oth")
 
@@ -197,9 +197,9 @@ data<-data %>% left_join(spdf@data[c("id", "Square_kilometer")],  by=c("NUTS_COD
 
 #--------------------------------pollution
 
-load("./Data/o32.RData")
-load("./Data/pm25.RData")
-load("./Data/pm10.RData")
+load("o32.RData")
+load("pm25.RData")
+load("pm10.RData")
 
 pollu<-rbind(
   cbind(spdf@data[1],pm25=Reduce("+",brk[c(1:2)])/length(brk[c(1:2)]),pm10 = Reduce("+",pm102[c(1:4)])/length(pm102[c(1:4)]),o3=Reduce("+",o32[c(1:4)])/length(o32[c(1:4)]),year=2009),
