@@ -323,17 +323,6 @@ trans$country<-data$country[1:(nrow(data)/2)]
 fmall<-log(pm10)~ihs(value/pop)+I(ihs(value/pop)^2)+log(rgdp/pop)+I(log(rgdp/pop)^2)+log(pop/Square_kilometer)+log(ind)+log(fbs)+log(agri)+log(constr)+log(wrtafic)+log(nonmarkt)+log(lpind)+log(lpfbs)+log(lpconstr)+log(lpwrtafic)+log(lpnonmrkt)+log(o3)+I(as.numeric(year)*log(Square_kilometer))+I(as.numeric(year)*log(Square_kilometer)^2)
 
 
-plot(density(ihs(data[data$value!=0,]$value)))#if we exclude those with an fdi value of zero
-plot(density(trans$pm10))
-plot(density(trans$gdp))
-plot(density(trans$ind))
-plot(density(trans$popdens))
-plot(density(trans$fbs))
-plot(density(trans$lptotal))
-plot(density(trans$lpind))
-plot(density(trans$sqkil))
-plot(density(trans$o3))
-plot(density(data$wrtafic))
 
 
 
