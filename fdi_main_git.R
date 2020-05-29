@@ -5,7 +5,7 @@ library(dplyr)
 library(tidyr)
 library(readODS)
 
-setwd("C:/WU/Master/AAMasterarbeit/mögliche Themen/FDI")
+getwd()
 
 # ----------------------------------------------------Functions
 
@@ -76,14 +76,12 @@ stars.pval <- function(p.value)
 }
 
 #---------------------------------shapefile eurostat nuts 3 level--------------------------------------------
-# spdf <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_level = "3", year = "2013",cache = TRUE,update_cache = FALSE, cache_dir = NULL)
-load("./Data/spdf1032013.RData")
+spdf <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_level = "3", year = "2013",cache = TRUE,update_cache = FALSE, cache_dir = NULL)
+#load("./Data/spdf1032013.RData")
 
-spdf<-shp
-remove(shp)
-#load("C:/Users/Enzinger/AppData/Local/Temp/Rtmp4sx5Xr/eurostat/spdf1032013.RData")
-# spdf<-shp
-# remove(shp)
+#spdf<-shp
+#remove(shp)
+
 oversea<-read_xlsx("C:/WU/Master/AAMasterarbeit/mögliche Themen/Eu_structural_investment/less_developed.xlsx",4)
 bad<-c("AL", "BA", "MK", "RS", "TR")#because of bad data quality in fdi Data
 
