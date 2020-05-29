@@ -250,7 +250,6 @@ test_w<-test_w[,-1290]
 #test_w<-test_w+t(test_w) variante 2
 test_w[1289,1288]<-1# better than the other, but interpretation?
 #test_w[2:1288,]<-test_w[2:1288,]/2
-
 W.list.1<-mat2listw(test_w)
 
 
@@ -303,9 +302,7 @@ x<-as.matrix(cbind(1,fd$model))#der 1er ist unnötig
 trans<-(-1)*D%*%x
 trans<-as.data.frame(trans)
 
-dim(D)
 
-head(trans)
 colnames(trans)<-c("b0","pm10","fdi","fdi2","gdp","gdp2","popdens","popdens2","ind","fbs","agri","constr","wrtafic","nonmarkt","lptotal","lpind","lpfbs","lpconstr","lpwrtafic","lpnonmrkt","o3","sqkil","sqkil2")
 
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+popdens2+ind+fbs+agri+constr+wrtafic+nonmarkt+lptotal+lpind+lpfbs+lpconstr+lpwrtafic+lpnonmrkt+o3+sqkil+sqkil2
@@ -414,68 +411,46 @@ addtorow$command <- paste0(paste0('& \\multicolumn{2}{c}{', c("2003-2009","2010-
 align(tabl) <- rep("l",7)
 print(tabl, add.to.row=addtorow, include.colnames=F,sanitize.text.function=function(x){x},caption.placement = "top")
 
-#-----------local MI
+
+
+#-------------------local MI
 
 
 localI <- localmoran(trans$pm10, listw = W.list.inv, alternative = "greater")
 View(localI)
-
-
 p.adjust(localI[,5], method = "bonferroni")#always do that if we test a lot of hypothesis simultaneously
 
 
-par(mfrow = c(1, 2))
-
-
-library(GISTools)
-sids79.shading <- auto.shading(c(localI[,1], -localI[,1]),n=4,
-                               cols=brewer.pal(4, "PuOr"))
-choropleth(spdf, localI[,1], shading=sids79.shading, main="Local Moran´s I for Difference in Pm Pollution",border=1, lwd = 0.1,lty=0)
-#locator(1)
-
-choro.legend(-10.42525,  70.69808, sh=sids79.shading, cex=0.6, title="Local Moran's I")
 
 count <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_level = "0", year = "2013",cache = TRUE,update_cache = FALSE, cache_dir = NULL)
 
 count <- count[!substr(count$id,1,4) %in% oversea$NUTS, ]
 count <- count[!substr(count$id,1,4) %in% oversea$Expl, ]
 count <- count[count$CNTR_CODE %in% unique(trans$country), ]
-plot(count,add=TRUE)
 
+
+
+par(mfrow = c(1, 2))
+
+library(GISTools)
+sids79.shading <- auto.shading(c(localI[,1], -localI[,1]),n=4,
+                               cols=brewer.pal(4, "PuOr"))
+choropleth(spdf, localI[,1], shading=sids79.shading, main="Local Moran´s I for Difference in Pm Pollution",border=1, lwd = 0.1,lty=0)
+#locator(1)
+choro.legend(-10.42525,  70.69808, sh=sids79.shading, cex=0.6, title="Local Moran's I")
+plot(count,add=TRUE)
 
 localI_fdi <- localmoran(trans$fdi, listw = W.list.inv, alternative = "greater")
 p.adjust(localI_fdi[,5], method = "bonferroni")#always do that if we test a lot of hypothesis simultaneously
-
 sids79.shading <- auto.shading(c(localI_fdi[,1], -localI_fdi[,1]),n=4,
                                cols=brewer.pal(4, "PuOr"))
 choropleth(spdf, localI_fdi[,1], shading=sids79.shading, main="Local Moran´s I for Difference in FDI",border=1, lwd = 0.1,lty=0)
-
-
 choro.legend(-10.42525, 70.69808, sh=sids79.shading, cex=0.6, title="Local Moran's I")
 plot(count,add=TRUE)
 
 
 
-localI_gdp <- localmoran(trans$gdp, listw = W.list.inv, alternative = "greater")
-p.adjust(localI_gdp[,5], method = "bonferroni")#always do that if we test a lot of hypothesis simultaneously
 
-sids79.shading <- auto.shading(c(localI_gdp[,1], -localI_gdp[,1]),n=4,
-                               cols=brewer.pal(4, "PuOr"))
-choropleth(spdf, localI_gdp[,1], shading=sids79.shading, main="Local Moran´s I for Difference in GDP",border=1, lwd = 0.1,lty=0)
-
-
-choro.legend(-10.42525, 70.69808, sh=sids79.shading, cex=0.6, title="Local Moran's I")
-plot(count,add=TRUE)
-
-localI_res <- localmoran(fd1$residuals, listw = W.list.inv, alternative = "greater")
-p.adjust(localI_res[,5], method = "bonferroni")#always do that if we test a lot of hypothesis simultaneously
-
-sids79.shading <- auto.shading(c(localI_res[,1], -localI_res[,1]),n=4,
-                               cols=brewer.pal(4, "PuOr"))
-choropleth(spdf, localI_res[,1], shading=sids79.shading, main="Local Moran´s I for the Residuals of the FD Model",border=1, lwd = 0.1,lty=0)
-
-choro.legend(-10.42525, 70.69808, sh=sids79.shading, cex=0.6, title="Local Moran's I")
-plot(count,add=TRUE)
 
 
 #-------------GWR
@@ -483,6 +458,7 @@ plot(count,add=TRUE)
 # mit fd daten allerdings super 
 fmfd<-pm10~fdi+gdp+gdp2+popdens+ind+fbs+agri+constr+wrtafic+nonmarkt+lpind+lpfbs+lpconstr+lpwrtafic+lpnonmrkt+o3+sqkil+sqkil2
 summary(lm(fmfd,trans))
+
 library(spgwr)
 coords <-coordinates(spdf)
 bwG <- gwr.sel(fmfd, data = trans, gweight = gwr.Gauss,verbose = TRUE,coords = coords)
@@ -550,9 +526,6 @@ plot(count,add=TRUE)
 
 #------------------------------------------------estimation----------------------------------------------
 
-
-
-
 fmall<-log(pm10)~ihs(value/pop)+I(ihs(value/pop)^2)+log(rgdp/pop)+I(log(rgdp/pop)^2)+log(pop/Square_kilometer)+log(ind)+log(fbs)+log(agri)+log(constr)+log(wrtafic)+log(nonmarkt)+log(lpind)+log(lpfbs)+log(lpconstr)+log(lpwrtafic)+log(lpnonmrkt)+log(o3)+I(as.numeric(year)*log(Square_kilometer))+I(as.numeric(year)*log(Square_kilometer)^2)
 
 
@@ -587,17 +560,16 @@ spherrlag# one model is inconsitent hence fixed effects are also supported by th
 
 
 
-
-
 #-------------------------------------------------HAC Errors-----------------------------------------------------
 
 library(sphet)
 
 
 id <- seq(1, (nrow(data)/2))
-# d <- distance(coord=coords, region.id = id, output = TRUE, type = "distance",
-#               shape.name = "shapefile", region.id.name="id", firstline = TRUE,
-#              file.name = "nuts_in.GWT",cutoff = 1)#region id eigentlich unnötig weil das das package sowieso macht
+d <- distance(coord=coords, region.id = id, output = TRUE, type = "distance",
+              shape.name = "shapefile", region.id.name="id", firstline = TRUE,
+             file.name = "nuts_in.GWT",cutoff = 1)
+
 coldist <- read.gwt2dist(file = "nuts_in.GWT",  region.id = id,skip = 1)
 
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+agri+wrtafic+lpind+lpwrtafic+o3+sqkil+sqkil2
@@ -637,7 +609,7 @@ coldist <- read.gwt2dist(file = "nuts_in_east.GWT",  region.id = id,skip = 1)
 trans_east<-trans %>% filter(country %in% east)
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+fbs+constr+lpind+lpconstr+o3
 SAR.2STLS.HAC_E <- stslshac(fmfd, data=trans_east[order(match(trans_east$nuts,rownames(W.di_east))),], listw=W.list.inv_east, distance = coldist, HAC = TRUE, type ="Triangular",zero.policy=FALSE)
-summary(SAR.2STLS.HAC_E)#estimate for spatial parameter larger than one? results do differ really much from those estimated by the splm model
+summary(SAR.2STLS.HAC_E)
 
 
 spdf_west<-spdf[!spdf$CNTR_CODE %in% east, ]
@@ -701,8 +673,6 @@ acf(residuals(sarsem14))
 library(spatialreg)
 
 
-
-
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+agri+wrtafic+lpind+lpwrtafic+o3+sqkil+sqkil2
 
 fd1<-lm(fmfd,trans)
@@ -722,9 +692,12 @@ summary(Durbin, correlation=FALSE)
 
 acf(residuals(Durbin))
 
-#sac <- sacsarlm(formula = fmfd, listw = W.list.inv, type="sac",listw2 = W.list.1 ,data=trans, tol.solve=1.0e-30)#better for autocorrelation but fdi looses its influence
+#sac <- sacsarlm(formula = fmfd, listw = W.list.inv, type="sac",listw2 = W.list.1 ,data=trans, tol.solve=1.0e-30)#better for autocorrelation but strange weights matrix
 sac <- sacsarlm(formula = fmfd, listw = W.list.inv, type="sac",data=trans, tol.solve=1.0e-30)#best for fmall if we look at the log likelihood
 summary(sac, correlation=FALSE)
+
+
+#-----------------------impacts
 
 
 sac.impacts<-impacts(sac, listw = W.list.inv)
@@ -762,12 +735,14 @@ summary(sac.impacts2, zstats=TRUE, short=TRUE)
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+wrtafic+lptotal+lpwrtafic+o3+sqkil+sqkil2#best model for sac if we start with the fmall equation
 fmfd<-pm10~fdi2+gdp+gdp2+popdens2+agri+o3#best model for sac if start with fmall equation without size term
 
-plot(density(trans$sqkil))
+
+
 
 #-------------------------------------------different country groups with spatialreg---------------------------------
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+fbs+agri+constr+wrtafic+nonmarkt+lpind+lpfbs+lpconstr+lpwrtafic+lpnonmrkt+o3+sqkil+sqkil2
 
 
+#east
 
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+fbs+constr+lpind+lpconstr+o3
 east<-c("CZ","BG","EE","HR","HU","RO","SI","SK","PL","LT","LV")
@@ -777,7 +752,7 @@ spdf_east<-spdf[spdf$CNTR_CODE %in% east, ]
 coords <-coordinates(spdf_east)
 distw.tot <- dnearneigh(coords,0,Inf, row.names = spdf_east$id)
 dnbdist.tot <- nbdists(distw.tot, coords)
-gl.tot <- lapply(dnbdist.tot, function(x) 1/x^2) #calculating inverse distances and take x^2 because we want to put more weight on closer neighbours
+gl.tot <- lapply(dnbdist.tot, function(x) 1/x^2)
 W.list.inv_east <- nb2listw(distw.tot, glist=gl.tot, zero.policy=FALSE, style = "W")
 W.di_east<-listw2mat(W.list.inv_east)
 
@@ -786,7 +761,7 @@ summary(sac1)
 acf(residuals(sac1))
 
 
-
+# west
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+fbs+constr+lpconstr+lpwrtafic+o3+sqkil+sqkil2
 spdf_west<-spdf[!spdf$CNTR_CODE %in% east, ]
 
@@ -802,7 +777,7 @@ summary(sac2)
 acf(residuals(sac2))
 
 
-
+#small
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+agri+wrtafic+nonmarkt+lpconstr+lpwrtafic+o3+sqkil
 small<-c("DE","UK","NL","BE")#looks now much better, DE and UK are most important
 
@@ -822,7 +797,7 @@ acf(residuals(sac3))
 
 
 
-
+#not small
 spdf_nsmall <- spdf[!spdf$CNTR_CODE %in% c(small,east), ]
 #W.matrix
 
@@ -838,7 +813,7 @@ summary(sac4)
 acf(residuals(sac4))
 
 
-
+#Germany
 spdf_ger <- spdf[spdf$CNTR_CODE %in% "DE", ]
 #W.matrix
 
@@ -855,7 +830,7 @@ acf(residuals(sac5))
 
 
 
-
+#GWR Sample
 fmfd<-pm10~fdi+fdi2+gdp+gdp2+popdens+ind+fbs+nonmarkt+lpfbs+o3+sqkil+sqkil2
 GWR<-c("PT","SI","AT","HR","CZ","PL","ES")#looks now much better, DE and UK are most important
 
