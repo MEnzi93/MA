@@ -278,8 +278,8 @@ remove(fdidat)
 remove(csvs)
 remove(urls)
 
-#-----------------------------------------------Descriptives-------------------------------------------------
-#---------necessacry data manipulation
+
+#----------------------------------------First difference transformation----------------------------------------
 
 head(data)
 fmall<-log(pm10)~ihs(value/pop)+I(ihs(value/pop)^2)+log(rgdp/pop)+I(log(rgdp/pop)^2)+log(pop/Square_kilometer)+I(log(pop/Square_kilometer)^2)+log(ind)+log(fbs)+log(agri)+log(constr)+log(wrtafic)+log(nonmarkt)+log(lptotal)+log(lpind)+log(lpfbs)+log(lpconstr)+log(lpwrtafic)+log(lpnonmrkt)+log(o3)+I(as.numeric(year)*log(Square_kilometer))+I(as.numeric(year)*log(Square_kilometer)^2)
@@ -290,7 +290,7 @@ library(plm)
 
 fd<-plm(fmall, data, model = "fd")
 
-#---------first difference
+
 d<-c(1,-1)
 d<-as.vector(d)
 dim(d) <- c(1,2)
@@ -315,12 +315,7 @@ summary(fd1)
 trans$nuts<-data$nuts[1:(nrow(data)/2)]
 trans$country<-data$country[1:(nrow(data)/2)]
 
-
-#--------------------data descriptives
-fmall<-log(pm10)~ihs(value/pop)+I(ihs(value/pop)^2)+log(rgdp/pop)+I(log(rgdp/pop)^2)+log(pop/Square_kilometer)+log(ind)+log(fbs)+log(agri)+log(constr)+log(wrtafic)+log(nonmarkt)+log(lpind)+log(lpfbs)+log(lpconstr)+log(lpwrtafic)+log(lpnonmrkt)+log(o3)+I(as.numeric(year)*log(Square_kilometer))+I(as.numeric(year)*log(Square_kilometer)^2)
-
-
-
+#-----------------------------------------------Descriptives-------------------------------------------------
 
 
 #--------------------test for multicolinearity 
@@ -352,8 +347,8 @@ cor.mat
 library(xtable)
 xtable(cor.mat)
 
-#--------------------spatial structure
-#---------global MI 
+#--------------------------------------------spatial structure
+#--------------------global MI 
 
 
 #pm
@@ -453,7 +448,8 @@ plot(count,add=TRUE)
 
 
 
-#-------------GWR
+#------------------GWR
+
 #scheint allerdings nicht wirklich sinnvoll da der estimator von ols auch nicht signifikant ist, plott sieht auch so aus
 # mit fd daten allerdings super 
 fmfd<-pm10~fdi+gdp+gdp2+popdens+ind+fbs+agri+constr+wrtafic+nonmarkt+lpind+lpfbs+lpconstr+lpwrtafic+lpnonmrkt+o3+sqkil+sqkil2
