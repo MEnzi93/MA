@@ -17,7 +17,7 @@ library(lmtest)
 #library(car)#erst unten bei vif weil sonst überschneidung mit recode von dplyr
 
 
-setwd("C:/WU/Master/AAMasterarbeit/mögliche Themen/FDI")
+getwd()
 
 # ----------------------------------------------------Functions
 
@@ -71,14 +71,13 @@ return(dummy1)
 
 #------------------------------------------------------------Data---------------------------------------------------
 
-load("./Data/spdf1032013.RData")
+spdf <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_level = "3", year = "2013",cache = TRUE,update_cache = FALSE, cache_dir = NULL)
+#load("./Data/spdf1032013.RData")
 
-spdf<-shp
-remove(shp)
-#load("C:/Users/Enzinger/AppData/Local/Temp/Rtmp4sx5Xr/eurostat/spdf1032013.RData")
-# spdf<-shp
-# remove(shp)
-oversea<-read_xlsx("C:/WU/Master/AAMasterarbeit/mögliche Themen/Eu_structural_investment/less_developed.xlsx",4)
+#spdf<-shp
+#remove(shp)
+
+oversea<-read_xlsx("less_developed.xlsx",4)
 bad<-c("AL", "BA", "MK", "RS", "TR")#because of bad data quality in fdi Data
 
 spdf <- spdf[!substr(spdf$id,1,4) %in% oversea$NUTS, ]
@@ -92,11 +91,11 @@ end<-2015
 #fdi
 
 csvs <- c(
-  "./Data/main-data/ind_400_b09-vfdi_data.csv",
-  "./Data/main-data/ind_401_a10-vfdi_data.csv",
-  "./Data/main-data/ind_403_man-vfdi_data.csv",
-  "./Data/main-data/ind_404_ser-vfdi_data.csv",
-  "./Data/main-data/ind_405_oth-vfdi_data.csv"
+  "ind_400_b09-vfdi_data.csv",
+  "ind_401_a10-vfdi_data.csv",
+  "ind_403_man-vfdi_data.csv",
+  "ind_404_ser-vfdi_data.csv",
+  "ind_405_oth-vfdi_data.csv"
 )
 name<-c("2009","2015","man","ser","oth")
 
@@ -193,9 +192,9 @@ data<-data %>% left_join(spdf@data[c("id", "Square_kilometer")],  by=c("NUTS_COD
 
 #--------------------------------pollution
 
-load("./Data/o32.RData")
-load("./Data/pm25.RData")
-load("./Data/pm10.RData")
+load("o32.RData")
+load("pm25.RData")
+load("pm10.RData")
 
 sum(pm102[[10]]>10)
 sum(brk[[8]]>10)
