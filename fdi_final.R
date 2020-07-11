@@ -308,6 +308,11 @@ library(car)
 #nur relevant für gediffte varialen
 VIF<-car::vif(fd3)
 
+
+fmall<-log(pm10)~I(value/rgdp)+log(rgdp/pop)+I(log(rgdp/pop)^2)+log(pop)+log(ind)+log(agri)+log(constr)+log(wrtafic)+log(lpind)+log(lpconstr)+log(lpwrtafic)+log(o3)+I(as.numeric(year)*log(Square_kilometer))+I(as.numeric(year)*log(Square_kilometer)^2)
+Ols<-plm(fmall, data, model = "pooling")
+
+
 #----------gmi
 #pm
 mi_pm09<-moran.test(log(data$pm10[1:(nrow(data)/2)]), listw = W.list.inv, alternative = "greater", randomisation = FALSE)

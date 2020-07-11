@@ -6,7 +6,7 @@ library(rgdal)
 #---------------------------------shapefile eurostat nuts 3 level--------------------------------------------
 spdf <- get_eurostat_geospatial(output_class = "spdf", resolution = "10", nuts_level = "3", year = "2013",cache = TRUE,
                                 update_cache = FALSE, cache_dir = NULL)
-oversea<-read_xlsx("C:/WU/Master/AAMasterarbeit/mögliche Themen/Eu_structural_investment/less_developed.xlsx",4)
+oversea<-read_xlsx("less_developed.xlsx",4)
 bad<-c("AL", "BA", "MK", "RS", "TR")#because of bad data quality in fdi Data
 
 spdf <- spdf[!substr(spdf$id,1,4) %in% oversea$NUTS, ]
@@ -19,7 +19,7 @@ spdf <- spdf[!spdf$CNTR_CODE %in% bad, ]
 library(raster)
 
 #read in all data
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/PM25")
+setwd("./PM25")
 
 
 
@@ -43,14 +43,14 @@ brk<-lapply(brk2, function(x) extract(x, spdf, fun=mean,na.rm=TRUE, weights=FALS
 sort(sapply(ls(),function(x){object.size(get(x))})) 
 
 
-#save(brk, file="brk.RData")
+#save(brk, file="pm25.RData")
 
 
 #----------------------------------------------------pm10-------------------------------------------
 
 #setwd
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/PM10")
-
+setwd("..")
+setwd("./PM10")
 
 #read in all data
 pm10 <- lapply(list.files(path = "./", pattern = "tif$"), raster)
@@ -70,8 +70,8 @@ pm102<-lapply(brk2, function(x) extract(x, spdf, fun=mean,na.rm=TRUE, weights=FA
 #save(pm102, file="pm102.RData")
 
 #----------------------------------------------------o3-------------------------------------------
-
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/O393")
+setwd("..")
+setwd("./O393")
 
 #read in all data
 o3 <- lapply(list.files(path = "./", pattern = "tif$"), raster)
@@ -90,39 +90,11 @@ o32<-lapply(brk2, function(x) extract(x, spdf, fun=mean,na.rm=TRUE, weights=FALS
 
 #save(o32, file="o32.RData")
 
-#----------------------------------------------------other-------------------------------------------
-#setwd
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/other")
 
-#read in all data
-other <- lapply(list.files(path = "./", pattern = "tif$"), raster)
-projection(other[[1]])==projection(other[[2]])
-projection(other[[3]])==projection(other[[2]])
-projection(other[[3]])==projection(other[[4]])#check same projection
-
-#projection
-proj4string(spdf)
-spdf<-spTransform(spdf, crs(other[[1]]))
-other
-
-
-# NA dealing
-other<-lapply(other,function(x) replace(x, x<=0, NA))# why now large list?
-projection(other[[1]])
-
-# intersection
-other2<-lapply(other, function(x) extract(x, spdf, fun=mean,na.rm=TRUE, weights=FALSE))
-
-#save(other2, file="other2.RData")
 
 ##---------------------------------------------------correltion tests-------------------------------------
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/other")
-load("other2.RData")
 
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/O393")
 load("o32.RData")
-
-setwd("C:/WU/Master/AAMasterarbeit/Data/Europe_pollution/Interpolated/PM10")
 load("pm25.RData")
 load("pm10.RData")
 
@@ -146,8 +118,8 @@ load("pm10.RData")
 # spplot(spdf, "pm1015", col.regions=cols, lwd=0)
 # spplot(spdf, "pm2515", col.regions=cols, lwd=0)
 
-com15<-cbind(brk[[8]], pm102[[10]], o32[[10]],other2[[2]],other2[[4]])
-com14<-cbind(brk[[7]], pm102[[9]], o32[[9]],other2[[1]],other2[[3]])
+com15<-cbind(brk[[8]], pm102[[10]], o32[[10]])
+com14<-cbind(brk[[7]], pm102[[9]], o32[[9]])
 
 cor.mat15<-cor(com15, method = c("spearman"))
 cor.mat14<-cor(com14, method = c("spearman"))
